@@ -1,24 +1,100 @@
-# Logs
-logs
-*.log
+# 众生谱 .gitignore
+# 作者：你们喜爱的老王
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+ENV/
+env/
+
+# Node.js
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+.pnpm-debug.log*
+package-lock.json
+yarn.lock
 
-node_modules
-dist
-dist-ssr
-*.local
+# 前端构建产物
+frontend/dist/
+frontend/build/
+frontend/.vite/
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# 数据库（可选：如果不想提交数据库）
+# storymap.db
+# storymap.db-journal
+
+# 日志文件
+*.log
+logs/
+
+# 操作系统
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 临时文件
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# 环境配置（敏感信息）
+.env
+.env.local
+.env.*.local
+
+# 打包产物
+*.exe
+*.app
+*.dmg
+*.pkg
+electron/dist/
+electron/build/
+
+# 测试文件
+test_*.py
+*_test.py
+
+# 缓存
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Conda
+.conda/
+*.conda
+
+# 其他
+.coverage
+htmlcov/
+.tox/

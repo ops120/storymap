@@ -1,0 +1,17 @@
+{
+  "project": {
+    "name": "232"
+  },
+  "nodes": [
+    { "id": "han_li", "label": "韩立", "sect": "黄枫谷" },
+    { "id": "nan_gong_wan", "label": "南宫婉", "sect": "掩月宗" },
+    { "id": "li_hua_yuan", "label": "李化元", "sect": "黄枫谷" },
+    { "id": "dong_xuan_er", "label": "董萱儿", "sect": "黄枫谷" }
+  ],
+  "edges": [
+    { "source": "han_li", "target": "nan_gong_wan", "label": "道侣", "type": "COUPLE" },
+    { "source": "han_li", "target": "li_hua_yuan", "label": "师徒", "type": "MASTER" },
+    { "source": "li_hua_yuan", "target": "dong_xuan_er", "label": "师伯侄", "type": "FRIEND" },
+    { "source": "dong_xuan_er", "target": "han_li", "label": "暗生情愫", "type": "OTHER" }
+  ]
+}
