@@ -26,6 +26,14 @@ export default function App() {
   const [systemPrompt, setSystemPrompt] = useState('');
   const fileInputRef = useRef(null);
   const textFileRef = useRef(null);
+  
+  // 分页相关状态
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10000; // 每页显示1万字
+  const totalPages = Math.ceil(text.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, text.length);
+  const displayText = text.length > pageSize ? text.substring(startIndex, endIndex) : text;
 
   // 添加旋转动画
   useEffect(() => {
@@ -315,25 +323,22 @@ export default function App() {
                     const file = e.target.files?.[0];
                     if (file) {
                       try {
-                        // 尝试多种编码
                         const arrayBuffer = await file.arrayBuffer();
                         let content = '';
                         
-                        // 尝试 UTF-8
                         try {
                           content = new TextDecoder('utf-8').decode(arrayBuffer);
                           if (content.includes('�')) throw new Error('UTF-8 failed');
                         } catch {
-                          // 尝试 GBK
                           try {
                             content = new TextDecoder('gbk').decode(arrayBuffer);
                           } catch {
-                            // 尝试 UTF-16
                             content = new TextDecoder('utf-16').decode(arrayBuffer);
                           }
                         }
                         
                         setText(content);
+                        setCurrentPage(1); // 重置到第一页
                       } catch (error) {
                         alert('文件读取失败: ' + error.message);
                       }
@@ -341,27 +346,157 @@ export default function App() {
                     e.target.value = '';
                   }}
                 />
+                {text.length > 0 && (
+                  <button
+                    onClick={() => {
+                      if (confirm('确定要清空文本吗？')) {
+                        setText('');
+                        setCurrentPage(1);
+                      }
+                    }}
+                    style={{ padding: '8px 16px', background: '#ff4d4f', color: 'white' }}
+                  >
+                    清空
+                  </button>
+                )}
               </div>
               <div style={{ 
                 fontSize: 13, 
-                color: '#666',
+                color: text.length > 100000 ? '#ff4d4f' : '#666',
                 padding: '4px 12px',
-                background: '#f5f5f5',
-                borderRadius: 4
+                background: text.length > 100000 ? '#fff1f0' : '#f5f5f5',
+                borderRadius: 4,
+                fontWeight: text.length > 100000 ? 'bold' : 'normal'
               }}>
                 总字数: {text.length.toLocaleString()}
+                {text.length > 100000 && ' ⚠️'}
               </div>
             </div>
+            
+            {/* 分页控制 */}
+            {text.length > pageSize && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '8px 12px',
+                background: '#f0f0f0',
+                borderRadius: 4,
+                fontSize: 13
+              }}>
+                <div style={{ color: '#666' }}>
+                  第 {currentPage} / {totalPages} 页 
+                  （显示 {startIndex + 1} - {endIndex} 字）
+                </div>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <button
+                    onClick={() => setCurrentPage(1)}
+                    disabled={currentPage === 1}
+                    style={{
+                      padding: '4px 8px',
+                      fontSize: 12,
+                      opacity: currentPage === 1 ? 0.5 : 1,
+                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    首页
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    style={{
+                      padding: '4px 8px',
+                      fontSize: 12,
+                      opacity: currentPage === 1 ? 0.5 : 1,
+                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    上一页
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    style={{
+                      padding: '4px 8px',
+                      fontSize: 12,
+                      opacity: currentPage === totalPages ? 0.5 : 1,
+                      cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    下一页
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    disabled={currentPage === totalPages}
+                    style={{
+                      padding: '4px 8px',
+                      fontSize: 12,
+                      opacity: currentPage === totalPages ? 0.5 : 1,
+                      cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    末页
+                  </button>
+                  <input
+                    type="number"
+                    min="1"
+                    max={totalPages}
+                    value={currentPage}
+                    onChange={e => {
+                      const page = parseInt(e.target.value);
+                      if (page >= 1 && page <= totalPages) {
+                        setCurrentPage(page);
+                      }
+                    }}
+                    style={{
+                      width: 50,
+                      padding: '4px',
+                      fontSize: 12,
+                      textAlign: 'center'
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            
+            {/* 大文本提示 */}
+            {text.length > 100000 && (
+              <div style={{
+                padding: '8px 12px',
+                background: '#fff7e6',
+                border: '1px solid #ffd591',
+                borderRadius: 4,
+                fontSize: 13,
+                color: '#d46b08'
+              }}>
+                💡 提示：文本较大（{Math.round(text.length / 10000) / 10}万字），已启用分页显示。
+                每页显示 1 万字，可使用翻页按钮浏览。
+              </div>
+            )}
+            
             <textarea
-              value={text}
-              onChange={e => setText(e.target.value)}
-              placeholder="粘贴小说片段，或点击【导入文本】上传 .txt 文件..."
+              value={displayText}
+              onChange={e => {
+                // 更新当前页的内容
+                const newPageText = e.target.value;
+                const before = text.substring(0, startIndex);
+                const after = text.substring(endIndex);
+                setText(before + newPageText + after);
+              }}
+              placeholder="粘贴小说片段，或点击【导入文本】上传 .txt 文件...
+
+提示：
+- 支持大文本（已测试100万字）
+- 超过1万字自动分页显示
+- 可使用翻页按钮浏览全文
+- 完整文本将用于分析"
               style={{
                 flex: 1,
                 padding: 12,
                 fontSize: 14,
                 resize: 'none',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
+                lineHeight: '1.6'
               }}
             />
           </div>
@@ -370,6 +505,11 @@ export default function App() {
           {s.isAnalyzing && (
             <div style={{ marginTop: 12, padding: 8, background: '#fff3cd', borderRadius: 4 }}>
               正在炼化中... {s.progress}%
+              {text.length > 100000 && (
+                <div style={{ fontSize: 12, marginTop: 4, color: '#856404' }}>
+                  大文本处理中，预计需要 {Math.ceil(text.length / chunkSize / 2)} 分钟
+                </div>
+              )}
             </div>
           )}
 
@@ -393,6 +533,19 @@ export default function App() {
               if (!text.trim()) {
                 alert('请输入要分析的文本');
                 return;
+              }
+
+              // 大文本警告
+              if (text.length > 100000) {
+                const chunks = Math.ceil(text.length / chunkSize);
+                const estimatedTime = Math.ceil(chunks / 2); // 假设每秒处理2个切片
+                const confirmed = confirm(
+                  `文本较大（${text.length.toLocaleString()} 字），将分为 ${chunks} 个切片处理。\n\n` +
+                  `预计耗时：${estimatedTime} 分钟\n` +
+                  `建议：可以先用小段文本测试\n\n` +
+                  `确定要继续吗？`
+                );
+                if (!confirmed) return;
               }
 
               if (debug) {
@@ -425,7 +578,7 @@ export default function App() {
               cursor: s.isAnalyzing ? 'not-allowed' : 'pointer'
             }}
           >
-            {s.isAnalyzing ? '炼化中...' : '🔥 开始炼化'}
+            {s.isAnalyzing ? '炼化中...' : `🔥 开始炼化${text.length > 0 ? ` (${Math.ceil(text.length / chunkSize)} 个切片)` : ''}`}
           </button>
         </div>
       }

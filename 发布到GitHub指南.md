@@ -11,8 +11,53 @@
 - [ ] README 已更新版本号
 - [ ] VERSION.md 已更新
 - [ ] 代码已清理（删除调试代码、console.log 等）
-- [ ] 数据库已备份
-- [ ] .gitignore 已配置
+- [ ] 数据库已备份（运行 backup-db.cmd）
+- [ ] .gitignore 已配置（确保数据库不会上传）
+- [ ] 敏感信息已移除（API Keys、密码等）
+
+---
+
+## 🔒 数据库安全
+
+### 为什么不上传数据库？
+
+1. **隐私保护**：数据库可能包含用户数据
+2. **文件大小**：数据库文件可能很大
+3. **版本控制**：数据库不适合用 Git 管理
+4. **安全性**：避免泄露敏感信息
+
+### 备份数据库
+
+发布前务必备份：
+
+```bash
+# 使用备份脚本（推荐）
+backup-db.cmd
+
+# 或手动备份
+copy storymap.db backups\storymap_backup.db
+```
+
+### 验证 .gitignore
+
+确认数据库已被忽略：
+
+```bash
+# 检查 Git 状态
+git status
+
+# 确认 storymap.db 不在列表中
+```
+
+如果数据库出现在列表中：
+
+```bash
+# 从 Git 缓存中移除
+git rm --cached storymap.db
+
+# 提交更改
+git commit -m "Remove database from Git"
+```
 
 ---
 
