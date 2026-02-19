@@ -41,9 +41,18 @@ frontend/dist/
 frontend/build/
 frontend/.vite/
 
-# 数据库（可选：如果不想提交数据库）
-# storymap.db
-# storymap.db-journal
+# 数据库（不提交到 Git）
+storymap.db
+storymap.db-journal
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# 数据库备份
+backups/
+backup/
+*.backup
 
 # 日志文件
 *.log
